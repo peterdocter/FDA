@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+bin
+res
+*/build.cmd
+*/*/build.cmd
+/.idea/*
+Hint
