@@ -9,7 +9,7 @@ Main::Main(QWidget *parent):
     ui(new Ui::Main) {
     ui->setupUi(this);
 
-    connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(MenuQuit()));
+    connect(ui->menuQuit, SIGNAL(triggered()), this, SLOT(MenuQuit()));
 }
 
 Main::~Main() {

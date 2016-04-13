@@ -17,9 +17,8 @@
 /*
  * Operations on an Object.
  */
-#include <c++/cstring>
 #include "../Dalvik.h"
-
+#include <string.h>
 /*
  * Find a matching field, in the current class only.
  *

@@ -25,7 +25,7 @@
 #include <strings.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <process.h>
+#include <unistd.h>
 
 #ifndef O_BINARY
 #define O_BINARY 0
