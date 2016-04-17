@@ -13,8 +13,7 @@ find_package(Qt5Widgets)
 
 include_directories(../Android ../Decompile .)
 
-set(SOURCE_FILES main.cpp
-        Main/Main.cpp)
+set(SOURCE_FILES main.cpp)
 add_executable(FDA ${SOURCE_FILES})
 
 target_link_libraries(FDA Qt5::Widgets Android Decompile)

@@ -3,6 +3,8 @@
 
 int txtBakSmali();
 
+#include <atomic>
+
 int main(int argc, char *argv[]) {
 //    process("F:\\CodeSrc\\FDA\\FDA\\res\\classes.dex");
     QApplication a(argc, argv);

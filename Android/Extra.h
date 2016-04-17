@@ -45,4 +45,5 @@
 bool safe_mul(unsigned *, unsigned a, unsigned b);
 bool safe_add(unsigned *, unsigned a, unsigned b);
 
+
 #endif //FDA_LOG_H
