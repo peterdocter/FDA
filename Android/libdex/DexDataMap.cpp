@@ -43,7 +43,7 @@ DexDataMap* dexDataMapAlloc(u4 maxCount) {
       return NULL;
     }
 
-    map = (DexDataMap*) malloc(size);
+    map = (DexDataMap*) new char[size];
 
     if (map == NULL) {
         return NULL;
@@ -66,7 +66,7 @@ void dexDataMapFree(DexDataMap* map) {
      * in one fell swoop. Also, free(NULL) is a nop (per spec), so we
      * don't have to worry about an explicit test for that.
      */
-    free(map);
+    delete map;
 }
 
 /*

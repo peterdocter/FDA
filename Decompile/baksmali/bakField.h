@@ -10,7 +10,7 @@
 #include <string>
 #include <libdex/DexClass.h>
 #include <base/accessFlags.h>
-#include <vector>
+#include <list>
 using namespace std;
 
 class bakField {
@@ -27,9 +27,10 @@ public:
     int getClassId() { return pDexFieldId->classIdx; }
 
     u4 getFlag() { return pDexField->accessFlags; }
-    bool getFlag(string &des) { return getAccessFlagField(getFlag(), des); }
 
-    void decompile(vector<string> &decs);
+    string getFlagStr() { return move(getAccessFlagField(getFlag())); }
+
+    void decompile(list<string> &decs);
 };
 
 

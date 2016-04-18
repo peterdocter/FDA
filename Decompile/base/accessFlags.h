@@ -10,9 +10,13 @@
 using namespace std;
 
 #define NUM_FLAGS   18
-bool getAccessFlagClass(u4 flags, string &rel);
-bool getAccessFlagMethod(u4 flags, string &rel);
-bool getAccessFlagField(u4 flags, string &rel);
-bool getAccessFlag(u4 flags, string &rel, const char *kAccessStrings[NUM_FLAGS] = NULL);
+
+string getAccessFlagClass(u4 flags);
+
+string getAccessFlagMethod(u4 flags);
+
+string getAccessFlagField(u4 flags);
+
+string getAccessFlag(u4 flags, const char *kAccessStrings[18]);
 
 #endif //FDA_ACCESSFLAGS_H

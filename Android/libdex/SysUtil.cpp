@@ -24,9 +24,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+
 #ifdef HAVE_POSIX_FILEMAP
 # include <sys/mman.h>
 #endif
+
 #include <limits.h>
 #include <errno.h>
 
@@ -36,8 +38,7 @@
  * bytes.  The actual segment may be larger because mmap() operates on
  * page boundaries (usually 4K).
  */
-static void* sysCreateAnonShmem(size_t length)
-{
+static void *sysCreateAnonShmem(size_t length) {
 #ifdef HAVE_POSIX_FILEMAP
     void* ptr;
 
@@ -59,9 +60,8 @@ static void* sysCreateAnonShmem(size_t length)
 /*
  * Create a private anonymous storage area.
  */
-int sysCreatePrivateMap(size_t length, MemMapping* pMap)
-{
-    void* memPtr;
+int sysCreatePrivateMap(size_t length, MemMapping *pMap) {
+    void *memPtr;
 
     memPtr = sysCreateAnonShmem(length);
     if (memPtr == NULL)
@@ -75,8 +75,7 @@ int sysCreatePrivateMap(size_t length, MemMapping* pMap)
 /*
  * Determine the current offset and remaining length of the open file.
  */
-static int getFileStartAndLength(int fd, off_t *start_, size_t *length_)
-{
+static int getFileStartAndLength(int fd, off_t *start_, size_t *length_) {
     off_t start, end;
     size_t length;
 
@@ -105,25 +104,25 @@ static int getFileStartAndLength(int fd, off_t *start_, size_t *length_)
 }
 
 #ifndef HAVE_POSIX_FILEMAP
-int sysFakeMapFile(int fd, MemMapping* pMap)
-{
+
+int sysFakeMapFile(int fd, MemMapping *pMap) {
     /* No MMAP, just fake it by copying the bits.
        For Win32 we could use MapViewOfFile if really necessary
        (see libs/utils/FileMap.cpp).
     */
     off_t start;
     size_t length;
-    void* memPtr;
+    void *memPtr;
 
     assert(pMap != NULL);
 
     if (getFileStartAndLength(fd, &start, &length) < 0)
         return -1;
 
-    memPtr = malloc(length);
+    memPtr = new char[length];
     if (read(fd, memPtr, length) < 0) {
         ALOGW("read(fd=%d, start=%d, length=%d) failed: %s", (int) length,
-            fd, (int) start, strerror(errno));
+              fd, (int) start, strerror(errno));
         return -1;
     }
 
@@ -132,6 +131,7 @@ int sysFakeMapFile(int fd, MemMapping* pMap)
 
     return 0;
 }
+
 #endif
 
 /*
@@ -145,8 +145,7 @@ int sysFakeMapFile(int fd, MemMapping* pMap)
  * On success, returns 0 and fills out "pMap".  On failure, returns a nonzero
  * value and does not disturb "pMap".
  */
-int sysMapFileInShmemWritableReadOnly(int fd, MemMapping* pMap)
-{
+int sysMapFileInShmemWritableReadOnly(int fd, MemMapping *pMap) {
 #ifdef HAVE_POSIX_FILEMAP
     off_t start;
     size_t length;
@@ -189,8 +188,7 @@ int sysMapFileInShmemWritableReadOnly(int fd, MemMapping* pMap)
  * value and does not disturb "pMap".
  */
 int sysMapFileSegmentInShmem(int fd, off_t start, size_t length,
-    MemMapping* pMap)
-{
+                             MemMapping *pMap) {
 #ifdef HAVE_POSIX_FILEMAP
     size_t actualLength;
     off_t actualStart;
@@ -234,9 +232,8 @@ int sysMapFileSegmentInShmem(int fd, off_t start, size_t length,
  *
  * Returns 0 on success.
  */
-int sysChangeMapAccess(void* addr, size_t length, int wantReadWrite,
-    MemMapping* pMap)
-{
+int sysChangeMapAccess(void *addr, size_t length, int wantReadWrite,
+                       MemMapping *pMap) {
 #ifdef HAVE_POSIX_FILEMAP
     /*
      * Verify that "addr" is part of this mapping file.
@@ -274,8 +271,7 @@ int sysChangeMapAccess(void* addr, size_t length, int wantReadWrite,
 /*
  * Release a memory mapping.
  */
-void sysReleaseShmem(MemMapping* pMap)
-{
+void sysReleaseShmem(MemMapping *pMap) {
 #ifdef HAVE_POSIX_FILEMAP
     if (pMap->baseAddr == NULL && pMap->baseLength == 0)
         return;
@@ -291,8 +287,8 @@ void sysReleaseShmem(MemMapping* pMap)
 #else
     /* Free the bits allocated by sysMapFileInShmem. */
     if (pMap->baseAddr != NULL) {
-      free(pMap->baseAddr);
-      pMap->baseAddr = NULL;
+        delete [](u1*)pMap->baseAddr;
+        pMap->baseAddr = NULL;
     }
     pMap->baseLength = 0;
 #endif
@@ -301,8 +297,7 @@ void sysReleaseShmem(MemMapping* pMap)
 /*
  * Make a copy of a MemMapping.
  */
-void sysCopyMap(MemMapping* dst, const MemMapping* src)
-{
+void sysCopyMap(MemMapping *dst, const MemMapping *src) {
     memcpy(dst, src, sizeof(MemMapping));
 }
 
@@ -311,8 +306,7 @@ void sysCopyMap(MemMapping* dst, const MemMapping* src)
  *
  * Returns 0 on success, or an errno value on failure.
  */
-int sysWriteFully(int fd, const void* buf, size_t count, const char* logMsg)
-{
+int sysWriteFully(int fd, const void *buf, size_t count, const char *logMsg) {
     while (count != 0) {
         ssize_t actual = TEMP_FAILURE_RETRY(write(fd, buf, count));
         if (actual < 0) {
@@ -321,8 +315,8 @@ int sysWriteFully(int fd, const void* buf, size_t count, const char* logMsg)
             return err;
         } else if (actual != (ssize_t) count) {
             ALOGD("%s: partial write (will retry): (%d of %zd)",
-                logMsg, (int) actual, count);
-            buf = (const void*) (((const u1*) buf) + actual);
+                  logMsg, (int) actual, count);
+            buf = (const void *) (((const u1 *) buf) + actual);
         }
         count -= actual;
     }
@@ -331,8 +325,7 @@ int sysWriteFully(int fd, const void* buf, size_t count, const char* logMsg)
 }
 
 /* See documentation comment in header file. */
-int sysCopyFileToFile(int outFd, int inFd, size_t count)
-{
+int sysCopyFileToFile(int outFd, int inFd, size_t count) {
     const size_t kBufSize = 32768;
     unsigned char buf[kBufSize];
 
@@ -342,7 +335,7 @@ int sysCopyFileToFile(int outFd, int inFd, size_t count)
         ssize_t actual = TEMP_FAILURE_RETRY(read(inFd, buf, getSize));
         if (actual != (ssize_t) getSize) {
             ALOGW("sysCopyFileToFile: copy read failed (%d vs %zd)",
-                (int) actual, getSize);
+                  (int) actual, getSize);
             return -1;
         }
 

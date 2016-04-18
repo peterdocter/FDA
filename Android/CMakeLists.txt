@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(Android)
 
-include_directories(external)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+include_directories(external)
 
 set(SRC_LIBDEX libdex/Leb128.cpp libdex/DexFile.cpp libdex/SysUtil.cpp
         libdex/DexCatch.cpp libdex/DexOptData.cpp libdex/DexProto.cpp

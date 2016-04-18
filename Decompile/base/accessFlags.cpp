@@ -13,7 +13,7 @@ enum AccessFor {
     kAccessForMAX
 };
 
-bool getAccessFlagClass(u4 flags, string &rel) {
+string getAccessFlagClass(u4 flags) {
     static const char *allFlags[NUM_FLAGS] = {
             "public",           /* 0x0001 -*/
             "private",          /* 0x0002 -*/
@@ -34,10 +34,10 @@ bool getAccessFlagClass(u4 flags, string &rel) {
             "verified",         /* 0x10000 */
             "optimized",        /* 0x20000 */
     };
-    return getAccessFlag(flags, rel, allFlags);
+    return getAccessFlag(flags, allFlags);
 }
 
-bool getAccessFlagMethod(u4 flags, string &rel) {
+string getAccessFlagMethod(u4 flags) {
     static const char *allFlags[NUM_FLAGS] = {
             "public",           /* 0x0001 -*/
             "private",          /* 0x0002 -*/
@@ -58,10 +58,10 @@ bool getAccessFlagMethod(u4 flags, string &rel) {
             "constructor",      /* 0x10000 -*/
             "declared_synchronized", /* 0x20000 -*/
     };
-    return getAccessFlag(flags, rel, allFlags);
+    return getAccessFlag(flags, allFlags);
 }
 
-bool getAccessFlagField(u4 flags, string &rel) {
+string getAccessFlagField(u4 flags) {
     static const char *allFlags[NUM_FLAGS] = {
             "public",           /* 0x0001 -*/
             "private",          /* 0x0002 -*/
@@ -82,11 +82,11 @@ bool getAccessFlagField(u4 flags, string &rel) {
             "?",                /* 0x10000 */
             "?",                /* 0x20000 */
     };
-    return getAccessFlag(flags, rel, allFlags);
+    return getAccessFlag(flags, allFlags);
 }
 
-bool getAccessFlag(u4 flags, string &rel, const char *kAccessStrings[NUM_FLAGS]) {
-    bool result = true;
+string getAccessFlag(u4 flags, const char *kAccessStrings[18]) {
+    string rel;
     static const char *allFlags[NUM_FLAGS] = {
             "public",           /* 0x0001 */
             "private",          /* 0x0002 */
@@ -115,11 +115,10 @@ bool getAccessFlag(u4 flags, string &rel, const char *kAccessStrings[NUM_FLAGS])
     rel.clear();
     for (int i = 0; i < NUM_FLAGS; ++i) {
         if (flags & 0x01) {
-            if (*acceptFlags[i] == '?') result = false;
             rel = rel + acceptFlags[i] + " ";
         }
         flags >>= 1;
     }
-    if (flags) result = false;
-    return result;
+
+    return move(rel);
 }

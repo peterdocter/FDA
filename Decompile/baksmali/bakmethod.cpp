@@ -274,9 +274,8 @@ void bakMethod::getInsString(string &rel, const DecodedInstruction *pDecInsn) {
             const DexMethodId *mId = dexGetMethodId(pDexFile, index);
             const char *name = dexStringById(pDexFile, mId->nameIdx);
             const char *classDexs = dexStringByTypeIdx(pDexFile, mId->classIdx);
-            const char *signature = dexCopyDescriptorFromMethodId(pDexFile, mId);
+            shared_ptr<const char>signature(dexCopyDescriptorFromMethodId(pDexFile, mId));
             buf << classDexs << "->" << name << signature;
-            free((void*)signature);
         }
             break;
         case kIndexFieldRef:
@@ -329,23 +328,20 @@ bool bakMethod::decompileTries(u4 insnIdx, string &exception, u4 &start, u4 &end
     return true;
 }
 
-bool bakMethod::getProto(string &des) {
-    char *descriptor = dexCopyDescriptorFromMethodId(pDexFile, pDexMethodId);
-    des = descriptor;
-    free(descriptor);
-    return true;
+string bakMethod::getProto() {
+    shared_ptr<char> descriptor(dexCopyDescriptorFromMethodId(pDexFile, pDexMethodId));
+    string des = descriptor.get();
+    return move(des);
 }
 
-void bakMethod::decompile(vector<string> &decs) {
+void bakMethod::decompile(list<string> &decs) {
     string tmp;
     string tmp2;
 
     stringstream ss;
 
     // .method flag name proto
-    getFlag(tmp);
-    getProto(tmp2);
-    ss << ".method " << tmp << getName() << tmp2;
+    ss << ".method " <<  getFlagStr() << getName() << getProto();
     decs.push_back(ss.str());
     ss.str("");
 

@@ -50,16 +50,16 @@ bool bakSmali::parseFromFile(const char *fileName) {
 
 bool bakSmali::parseFromDexFile(const DexFile *file) {
     assert(pDexFile == NULL);
-    pDexFile = (DexFile*) malloc(sizeof(DexFile));
+    pDexFile = new DexFile;
     memcpy(pDexFile, file, sizeof(DexFile));
     return true;
 }
 
-bakClass *bakSmali::getClassDef(int idx) {
+shared_ptr<bakClass> bakSmali::getClassDef(int idx) {
     if (idx >= getClassDefSize()) {
-        return NULL;
+        return move(shared_ptr<bakClass>(NULL));
     }
     const DexClassDef *pClassDef = dexGetClassDef(pDexFile, idx);
-    bakClass *newClass = new bakClass(pClassDef, pDexFile);
-    return newClass;
+    shared_ptr<bakClass>  newClass(new bakClass(pClassDef, pDexFile));
+    return move(newClass);
 }
