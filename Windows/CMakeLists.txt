@@ -9,11 +9,15 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 #查找Qt的库
-find_package(Qt5Widgets)
+find_package(Qt5Quick)
+find_package(Qt5Gui)
+find_package(Qt5Qml)
+find_package(Qt5Network)
+find_package(Qt5Core)
 
 include_directories(../Android ../Decompile .)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp uiforms.cpp)
 add_executable(FDA ${SOURCE_FILES})
 
-target_link_libraries(FDA Qt5::Widgets Android Decompile)
+target_link_libraries(FDA Qt5::Quick Qt5::Gui Qt5::Qml Qt5::Network Qt5::Core Android Decompile)
