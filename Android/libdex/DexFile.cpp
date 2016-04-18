@@ -298,7 +298,7 @@ DexFile* dexFileParse(const u1* data, size_t length, int flags)
         goto bail;      /* bad file format */
     }
 
-    pDexFile = (DexFile*) malloc(sizeof(DexFile));
+    pDexFile = new DexFile;
     if (pDexFile == NULL)
         goto bail;      /* alloc failure */
     memset(pDexFile, 0, sizeof(DexFile));
@@ -430,7 +430,7 @@ void dexFileFree(DexFile* pDexFile)
     if (pDexFile == NULL)
         return;
 
-    free(pDexFile);
+    delete pDexFile;
 }
 
 /*

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(Decompile)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 include_directories(../Android .)
 
 set(BAKSMALI_SRC_FILES baksmali/bakSmali.cpp baksmali/bakClass.cpp baksmali/bakMethod.cpp baksmali/bakField.cpp)

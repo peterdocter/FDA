@@ -154,7 +154,7 @@ static char* descriptorToDot(const char* str)
         }
     }
 
-    newStr = (char*)malloc(targetLen + arrayDepth * 2 +1);
+    newStr = new char[targetLen + arrayDepth * 2 +1];
 
     /* copy class name over */
     int i;
@@ -334,7 +334,7 @@ static char* createAccessFlagStr(u4 flags, AccessFor forWhat)
      * string above as the base metric.
      */
     count = countOnes(flags);
-    cp = str = (char*) malloc(count * (kLongest+1) +1);
+    cp = str = new char[count * (kLongest+1) +1];
 
     for (i = 0; i < NUM_FLAGS; i++) {
         if (flags & 0x01) {
@@ -543,7 +543,7 @@ void dumpClassDef(DexFile* pDexFile, int idx)
             pClassData->header.virtualMethodsSize);
     printf("\n");
 
-    free(pClassData);
+    delete [](u1*)pClassData;
 }
 
 /*
@@ -560,7 +560,7 @@ void dumpInterface(const DexFile* pDexFile, const DexTypeItem* pTypeItem,
     } else {
         char* dotted = descriptorToDot(interfaceName);
         printf("<implements name=\"%s\">\n</implements>\n", dotted);
-        free(dotted);
+        delete []dotted;
     }
 }
 
@@ -793,7 +793,7 @@ static char* indexString(DexFile* pDexFile,
                 outSize = snprintf(buf, bufSize, "%s.%s:%s // method@%0*x",
                         methInfo.classDescriptor, methInfo.name,
                         methInfo.signature, width, index);
-                free((void *) methInfo.signature);
+                delete [] methInfo.signature;
             } else {
                 outSize = snprintf(buf, bufSize, "<method?> // method@%0*x",
                         width, index);
@@ -836,7 +836,7 @@ static char* indexString(DexFile* pDexFile,
          * size, so we add explicit space for it here.
          */
         outSize++;
-        buf = (char*)malloc(outSize);
+        buf = new char[outSize];;
         if (buf == NULL) {
             return NULL;
         }
@@ -1050,7 +1050,7 @@ void dumpInstruction(DexFile* pDexFile, const DexCode* pCode, int insnIdx,
     putchar('\n');
 
     if (indexBuf != indexBufChars) {
-        free(indexBuf);
+        delete []indexBuf;
     }
 }
 
@@ -1076,7 +1076,7 @@ void dumpBytecodes(DexFile* pDexFile, const DexMethod* pDexMethod)
     printf("%06x:                                        |[%06x] %s.%s:%s\n",
         startAddr, startAddr,
         className, methInfo.name, methInfo.signature);
-    free((void *) methInfo.signature);
+    delete[]methInfo.signature;
 
     insnIdx = 0;
     while (insnIdx < (int) pCode->insnsSize) {
@@ -1120,7 +1120,7 @@ void dumpBytecodes(DexFile* pDexFile, const DexMethod* pDexMethod)
         insnIdx += insnWidth;
     }
 
-    free(className);
+    delete []className;
 }
 
 /*
@@ -1194,11 +1194,11 @@ void dumpMethod(DexFile* pDexFile, const DexMethod* pDexMethod, int i)
 
             tmp = descriptorClassToDot(backDescriptor);
             printf("<constructor name=\"%s\"\n", tmp);
-            free(tmp);
+            delete []tmp;
 
             tmp = descriptorToDot(backDescriptor);
             printf(" type=\"%s\"\n", tmp);
-            free(tmp);
+            delete []tmp;
         } else {
             printf("<method name=\"%s\"\n", name);
 
@@ -1211,7 +1211,7 @@ void dumpMethod(DexFile* pDexFile, const DexMethod* pDexMethod, int i)
 
             char* tmp = descriptorToDot(returnType+1);
             printf(" return=\"%s\"\n", tmp);
-            free(tmp);
+            delete []tmp;
 
             printf(" abstract=%s\n",
                 quotedBool((pDexMethod->accessFlags & ACC_ABSTRACT) != 0));
@@ -1273,7 +1273,7 @@ void dumpMethod(DexFile* pDexFile, const DexMethod* pDexMethod, int i)
             char* tmp = descriptorToDot(tmpBuf);
             printf("<parameter name=\"arg%d\" type=\"%s\">\n</parameter>\n",
                 argNum++, tmp);
-            free(tmp);
+            delete []tmp;
         }
 
         if (constructor)
@@ -1283,8 +1283,8 @@ void dumpMethod(DexFile* pDexFile, const DexMethod* pDexMethod, int i)
     }
 
 bail:
-    free(typeDescriptor);
-    free(accessStr);
+    delete []typeDescriptor;
+    delete []accessStr;
 }
 
 /*
@@ -1324,7 +1324,7 @@ void dumpSField(const DexFile* pDexFile, const DexField* pSField, int i)
 
         tmp = descriptorToDot(typeDescriptor);
         printf(" type=\"%s\"\n", tmp);
-        free(tmp);
+        delete []tmp;
 
         printf(" transient=%s\n",
             quotedBool((pSField->accessFlags & ACC_TRANSIENT) != 0));
@@ -1341,7 +1341,7 @@ void dumpSField(const DexFile* pDexFile, const DexField* pSField, int i)
         printf(">\n</field>\n");
     }
 
-    free(accessStr);
+    delete []accessStr;
 }
 
 /*
@@ -1428,10 +1428,10 @@ void dumpClass(DexFile* pDexFile, int idx, char** pLastPackage)
             if (*pLastPackage != NULL)
                 printf("</package>\n");
             printf("<package name=\"%s\"\n>\n", mangle);
-            free(*pLastPackage);
+            delete *pLastPackage;
             *pLastPackage = mangle;
         } else {
-            free(mangle);
+            delete []mangle;
         }
     }
 
@@ -1459,12 +1459,12 @@ void dumpClass(DexFile* pDexFile, int idx, char** pLastPackage)
 
         tmp = descriptorClassToDot(classDescriptor);
         printf("<class name=\"%s\"\n", tmp);
-        free(tmp);
+        delete []tmp;
 
         if (superclassDescriptor != NULL) {
             tmp = descriptorToDot(superclassDescriptor);
             printf(" extends=\"%s\"\n", tmp);
-            free(tmp);
+            delete []tmp;
         }
         printf(" abstract=%s\n",
             quotedBool((pClassDef->accessFlags & ACC_ABSTRACT) != 0));
@@ -1525,8 +1525,8 @@ void dumpClass(DexFile* pDexFile, int idx, char** pLastPackage)
     }
 
 bail:
-    free(pClassData);
-    free(accessStr);
+    delete [](u1*)pClassData;
+    delete []accessStr;
 }
 
 
@@ -1727,7 +1727,7 @@ void dumpRegisterMaps(DexFile* pDexFile)
             dumpMethodMap(pDexFile, &pClassData->virtualMethods[i], i, &data);
         }
 
-        free(pClassData);
+        delete [](u1*)pClassData;
     }
 }
 
@@ -1767,7 +1767,7 @@ void processDexFile(const char* fileName, DexFile* pDexFile)
     /* free the last one allocated */
     if (package != NULL) {
         printf("</package>\n");
-        free(package);
+        delete []package;
     }
 
     if (gOptions.outputFormat == OUTPUT_XML)

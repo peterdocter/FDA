@@ -311,7 +311,7 @@ static int mapCentralDirectory(int fd, const char* debugFileName,
     if (fileLength < off_t(readAmount))
         readAmount = fileLength;
 
-    u1* scanBuf = (u1*) malloc(readAmount);
+    u1* scanBuf = new u1[readAmount];
     if (scanBuf == NULL) {
         return -1;
     }
@@ -319,7 +319,7 @@ static int mapCentralDirectory(int fd, const char* debugFileName,
     int result = mapCentralDirectory0(fd, debugFileName, pArchive,
             fileLength, readAmount, scanBuf);
 
-    free(scanBuf);
+    delete []scanBuf;
     return result;
 }
 
@@ -479,7 +479,7 @@ void dexZipCloseArchive(ZipArchive* pArchive)
 
     sysReleaseShmem(&pArchive->mDirectoryMap);
 
-    free(pArchive->mHashTable);
+    delete pArchive->mHashTable;
 
     /* ensure nobody tries to use the ZipArchive after it's closed */
     pArchive->mDirectoryOffset = -1;
@@ -667,8 +667,8 @@ static int inflateToFile(int outFd, int inFd, size_t uncompLen, size_t compLen)
 {
     int result = -1;
     const size_t kBufSize = 32768;
-    unsigned char* readBuf = (unsigned char*) malloc(kBufSize);
-    unsigned char* writeBuf = (unsigned char*) malloc(kBufSize);
+    unsigned char* readBuf =  new unsigned char[kBufSize];
+    unsigned char* writeBuf = new unsigned char[kBufSize];
     z_stream zstream;
     int zerr;
 
@@ -761,8 +761,8 @@ z_bail:
     inflateEnd(&zstream);        /* free up any allocated structures */
 
 bail:
-    free(readBuf);
-    free(writeBuf);
+    delete []readBuf;
+    delete []writeBuf;
     return result;
 }
 

@@ -950,7 +950,7 @@ static bool verifyClassDataIsForDef(const CheckState* state, u4 offset,
     u4 dataDefiner = findFirstClassDataDefiner(state, classData);
     bool result = (dataDefiner == definerIdx) || (dataDefiner == kDexNoIndex);
 
-    free(classData);
+    delete [](u1*)classData;
     return result;
 }
 
@@ -1568,7 +1568,7 @@ static void* intraVerifyClassDataItem(const CheckState* state, void* ptr) {
 
     bool okay = verifyClassDataItem0(state, classData);
 
-    free(classData);
+    delete [](u1*)classData;
 
     if (!okay) {
         return NULL;
@@ -1645,7 +1645,7 @@ static void* crossVerifyClassDataItem(const CheckState* state, void* ptr) {
             && verifyMethodDefiner(state, definingClass, meth->methodIdx);
     }
 
-    free(classData);
+    delete [](u1*)classData;
 
     if (!okay) {
         return NULL;

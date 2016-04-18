@@ -9,14 +9,12 @@ using namespace std;
 int main(int argc, char *argv[]) {
     bakSmali bs;
     bs.parseFromFile("F:\\CodeSrc\\FDA\\FDA\\res\\classes.dex");
-    vector<string> rel;
-    bakClass *aClass = bs.getClassDef(0);
+    list<string> rel;
+    auto && aClass = bs.getClassDef(0);
     aClass->decompile(rel);
-    for (vector<string>::iterator itea = rel.begin();
-         itea != rel.end(); itea++) {
-        cout << *itea << endl;
+    for (auto item : rel) {
+        cout << item << endl;
     }
-    delete aClass;
     return 0;
 }
 

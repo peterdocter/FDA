@@ -38,14 +38,14 @@ void dexStringCacheAlloc(DexStringCache* pCache, size_t length) {
         if (pCache->allocatedSize >= length) {
             return;
         }
-        free((void*) pCache->value);
+        delete []pCache->value;
     }
 
     if (length <= sizeof(pCache->buffer)) {
         pCache->value = pCache->buffer;
         pCache->allocatedSize = 0;
     } else {
-        pCache->value = (char*) malloc(length);
+        pCache->value = new char[length];
         pCache->allocatedSize = length;
     }
 }
@@ -66,7 +66,7 @@ void dexStringCacheInit(DexStringCache* pCache) {
  */
 void dexStringCacheRelease(DexStringCache* pCache) {
     if (pCache->allocatedSize != 0) {
-        free((void*) pCache->value);
+        delete []pCache->value;
         pCache->value = pCache->buffer;
         pCache->allocatedSize = 0;
     }

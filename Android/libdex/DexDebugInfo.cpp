@@ -33,35 +33,31 @@
  * there are no more args.  Advances "pSig" to point to the character
  * after the one returned.
  */
-static char decodeSignature(const char** pSig)
-{
-    const char* sig = *pSig;
+static char decodeSignature(const char **pSig) {
+    const char *sig = *pSig;
 
     if (*sig == '(')
         sig++;
 
     if (*sig == 'L') {
         /* object ref */
-        while (*++sig != ';')
-            ;
-        *pSig = sig+1;
+        while (*++sig != ';');
+        *pSig = sig + 1;
         return 'L';
     }
     if (*sig == '[') {
         /* array; advance past array type */
-        while (*++sig == '[')
-            ;
+        while (*++sig == '[');
         if (*sig == 'L') {
-            while (*++sig != ';')
-                ;
+            while (*++sig != ';');
         }
-        *pSig = sig+1;
+        *pSig = sig + 1;
         return '[';
     }
     if (*sig == '\0')
         return *sig;        /* don't advance further */
 
-    *pSig = sig+1;
+    *pSig = sig + 1;
     return *sig;
 }
 
@@ -81,8 +77,8 @@ static int typeLength(const char *type) {
  * Reads a string index as encoded for the debug info format,
  * returning a string pointer or NULL as appropriate.
  */
-static const char* readStringIdx(const DexFile* pDexFile,
-        const u1** pStream) {
+static const char *readStringIdx(const DexFile *pDexFile,
+                                 const u1 **pStream) {
     u4 stringIdx = readUnsignedLeb128(pStream);
 
     // Remember, encoded string indicies have 1 added to them.
@@ -97,8 +93,8 @@ static const char* readStringIdx(const DexFile* pDexFile,
  * Reads a type index as encoded for the debug info format, returning
  * a string pointer for its descriptor or NULL as appropriate.
  */
-static const char* readTypeIdx(const DexFile* pDexFile,
-        const u1** pStream) {
+static const char *readTypeIdx(const DexFile *pDexFile,
+                               const u1 **pStream) {
     u4 typeIdx = readUnsignedLeb128(pStream);
 
     // Remember, encoded type indicies have 1 added to them.
@@ -118,38 +114,36 @@ struct LocalInfo {
 };
 
 static void emitLocalCbIfLive(void *cnxt, int reg, u4 endAddress,
-        LocalInfo *localInReg, DexDebugNewLocalCb localCb)
-{
+                              LocalInfo *localInReg, DexDebugNewLocalCb localCb) {
     if (localCb != NULL && localInReg[reg].live) {
         localCb(cnxt, reg, localInReg[reg].startAddress, endAddress,
                 localInReg[reg].name,
                 localInReg[reg].descriptor,
                 localInReg[reg].signature == NULL
-                ? "" : localInReg[reg].signature );
+                ? "" : localInReg[reg].signature);
     }
 }
 
-static void invalidStream(const char *classDescriptor, const DexProto* proto) {
+static void invalidStream(const char *classDescriptor, const DexProto *proto) {
 //    IF_ALOGE() {
-        char* methodDescriptor = dexProtoCopyMethodDescriptor(proto);
-        ALOGE("Invalid debug info stream. class %s; proto %s",
-                classDescriptor, methodDescriptor);
-        free(methodDescriptor);
+    char *methodDescriptor = dexProtoCopyMethodDescriptor(proto);
+    ALOGE("Invalid debug info stream. class %s; proto %s",
+          classDescriptor, methodDescriptor);
+    delete[]methodDescriptor;
 //    }
 }
 
 static void dexDecodeDebugInfo0(
-            const DexFile* pDexFile,
-            const DexCode* pCode,
-            const char* classDescriptor,
-            u4 protoIdx,
-            u4 accessFlags,
-            DexDebugNewPositionCb posCb, DexDebugNewLocalCb localCb,
-            void* cnxt,
-            const u1* stream,
-            LocalInfo* localInReg)
-{
-    DexProto proto = { pDexFile, protoIdx };
+        const DexFile *pDexFile,
+        const DexCode *pCode,
+        const char *classDescriptor,
+        u4 protoIdx,
+        u4 accessFlags,
+        DexDebugNewPositionCb posCb, DexDebugNewLocalCb localCb,
+        void *cnxt,
+        const u1 *stream,
+        LocalInfo *localInReg) {
+    DexProto proto = {pDexFile, protoIdx};
     u4 insnsSize = pCode->insnsSize;
     u4 line = readUnsignedLeb128(&stream);
     u4 parametersSize = readUnsignedLeb128(&stream);
@@ -177,7 +171,7 @@ static void dexDecodeDebugInfo0(
     dexParameterIteratorInit(&iterator, &proto);
 
     while (parametersSize-- != 0) {
-        const char* descriptor = dexParameterIteratorNextDescriptor(&iterator);
+        const char *descriptor = dexParameterIteratorNextDescriptor(&iterator);
         const char *name;
         int reg;
 
@@ -208,7 +202,7 @@ static void dexDecodeDebugInfo0(
         }
     }
 
-    for (;;)  {
+    for (; ;) {
         u1 opcode = *stream++;
         u2 reg;
 
@@ -234,13 +228,13 @@ static void dexDecodeDebugInfo0(
 
                 // Emit what was previously there, if anything
                 emitLocalCbIfLive(cnxt, reg, address,
-                    localInReg, localCb);
+                                  localInReg, localCb);
 
                 localInReg[reg].name = readStringIdx(pDexFile, &stream);
                 localInReg[reg].descriptor = readTypeIdx(pDexFile, &stream);
                 if (opcode == DBG_START_LOCAL_EXTENDED) {
                     localInReg[reg].signature
-                        = readStringIdx(pDexFile, &stream);
+                            = readStringIdx(pDexFile, &stream);
                 } else {
                     localInReg[reg].signature = NULL;
                 }
@@ -255,7 +249,7 @@ static void dexDecodeDebugInfo0(
                     return;
                 }
 
-                emitLocalCbIfLive (cnxt, reg, address, localInReg, localCb);
+                emitLocalCbIfLive(cnxt, reg, address, localInReg, localCb);
                 localInReg[reg].live = false;
                 break;
 
@@ -267,7 +261,7 @@ static void dexDecodeDebugInfo0(
                 }
 
                 if (localInReg[reg].name == NULL
-                        || localInReg[reg].descriptor == NULL) {
+                    || localInReg[reg].descriptor == NULL) {
                     invalidStream(classDescriptor, &proto);
                     return;
                 }
@@ -310,22 +304,21 @@ static void dexDecodeDebugInfo0(
 
 // TODO optimize localCb == NULL case
 void dexDecodeDebugInfo(
-            const DexFile* pDexFile,
-            const DexCode* pCode,
-            const char* classDescriptor,
-            u4 protoIdx,
-            u4 accessFlags,
-            DexDebugNewPositionCb posCb, DexDebugNewLocalCb localCb,
-            void* cnxt)
-{
-    const u1* stream = dexGetDebugInfoStream(pDexFile, pCode);
+        const DexFile *pDexFile,
+        const DexCode *pCode,
+        const char *classDescriptor,
+        u4 protoIdx,
+        u4 accessFlags,
+        DexDebugNewPositionCb posCb, DexDebugNewLocalCb localCb,
+        void *cnxt) {
+    const u1 *stream = dexGetDebugInfoStream(pDexFile, pCode);
     LocalInfo localInReg[pCode->registersSize];
 
     memset(localInReg, 0, sizeof(LocalInfo) * pCode->registersSize);
 
     if (stream != NULL) {
         dexDecodeDebugInfo0(pDexFile, pCode, classDescriptor, protoIdx, accessFlags,
-            posCb, localCb, cnxt, stream, localInReg);
+                            posCb, localCb, cnxt, stream, localInReg);
     }
 
     for (int reg = 0; reg < pCode->registersSize; reg++) {

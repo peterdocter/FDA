@@ -15,8 +15,8 @@
 #include <sstream>
 
 #include <base/accessFlags.h>
-#include <vector>
-
+#include <list>
+#include <memory>
 using namespace std;
 
 class bakMethod {
@@ -33,11 +33,13 @@ public:
     const DexMethodId* getMethodId() { return pDexMethodId; }
 
     const char *getName() { return dexStringById(pDexFile, pDexMethodId->nameIdx); }
-    bool getProto(string &des);
+
+    string getProto();
     int getClassId() { return pDexMethodId->classIdx; }
 
     u4 getFlag() { return pDexMethd->accessFlags; }
-    bool getFlag(string &des) { return getAccessFlagMethod(getFlag(), des); }
+
+    string getFlagStr() { return move(getAccessFlagMethod(getFlag())); }
 
 
     u4 getInsSize() { return pCode ? pCode->insnsSize : 0; }
@@ -45,7 +47,7 @@ public:
     bool decompileIns(u4 insnIdx, string &rel, u4 &insWidth);
     bool decompileTries(u4 insnIdx, string &exception, u4 &start, u4 &end, u4 &addr);
 
-    void decompile(vector<string> &decs);
+    void decompile(list<string> &decs);
 
 private:
     void getInsString(string &exception, const DecodedInstruction *pDecInsn);

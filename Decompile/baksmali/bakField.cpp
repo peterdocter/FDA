@@ -11,10 +11,8 @@ bakField::bakField(const DexField *infield, const DexFile *index) {
     pDexFieldId = dexGetFieldId(pDexFile, pDexField->fieldIdx);
 }
 
-void bakField::decompile(vector<string> &decs) {
-    string tmp;
-    getFlag(tmp);
-    decs.push_back(".field " + tmp  + getName() + ':' + getType());
+void bakField::decompile(list<string> &decs) {
+    decs.push_back(".field " + getFlagStr()  + getName() + ':' + getType());
 }
 
 

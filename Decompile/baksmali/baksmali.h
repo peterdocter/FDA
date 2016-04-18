@@ -38,8 +38,8 @@ public:
     }
 
     int getClassDefSize() { return pDexFile->pHeader->classDefsSize; }
-    // INFO :下面的返回值需要进行delete释放内存
-    bakClass* getClassDef(int idx);
+
+    shared_ptr<bakClass> getClassDef(int idx);
 
 private:
     MemMapping map;

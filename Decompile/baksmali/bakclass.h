@@ -14,13 +14,16 @@
 #include "bakMethod.h"
 #include "bakField.h"
 
+#include <list>
+#include <c++/memory>
+
 using namespace std;
 
 class bakClass {
 private:
     const DexClassDef *pClassDef;
     const DexFile *pDexFile;
-    const DexClassData* pClassData;
+    shared_ptr<const DexClassData> pClassData;
 public:
     bakClass(const DexClassDef *indef, const DexFile *index);
     ~bakClass();
@@ -30,23 +33,23 @@ public:
     const char* getSourceFileName() { return dexStringById(pDexFile, pClassDef->sourceFileIdx); }
 
     u4 getFlag() { return pClassDef->accessFlags; }
-    bool getFlag(string &des) { return getAccessFlagClass(getFlag(), des); }
+
+    string getFlagStr() { return move(getAccessFlagClass(getFlag())); }
 
     const DexClassDef *getClassDef() { return pClassDef; }
-    const DexClassData* getClassData() { return pClassData; }
+    const DexClassData* getClassData() { return pClassData.get(); }
     int getStaticFieldSize() { return pClassData != NULL ? pClassData->header.staticFieldsSize : 0; }
     int getInstanceFieldSize() { return pClassData != NULL ? pClassData->header.instanceFieldsSize : 0; }
     int getDirectMethodSize() { return pClassData != NULL ? pClassData->header.directMethodsSize : 0; }
     int getVirtualMethodSize() { return pClassData != NULL ? pClassData->header.virtualMethodsSize : 0; }
 
-    // INFO 下面的返回值需要进行delete释放内存
-    bakField *getStaticField(int idx);
-    bakField *getInstanceField(int idx);
+    shared_ptr<bakField> getStaticField(int idx);
+    shared_ptr<bakField> getInstanceField(int idx);
 
-    bakMethod *getDirectMethod(int idx);
-    bakMethod* getVirtualMethod(int idx);
+    shared_ptr<bakMethod> getDirectMethod(int idx);
+    shared_ptr<bakMethod> getVirtualMethod(int idx);
 
-    void decompile(vector<string> &decs);
+    void decompile(list<string> &decs);
 };
 
 
